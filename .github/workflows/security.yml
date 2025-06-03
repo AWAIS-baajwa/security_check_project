@@ -1,0 +1,48 @@
+name: Python Dependency Security Check
+
+on:
+  pull_request: # it will run every time if someone makes pull request
+
+jobs:
+  security-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install security tools
+        run: |
+          pip install safety pip-audit
+
+      - name: Run pip-audit
+        run: |
+          echo "🔍 Running pip-audit..."
+          pip-audit -f json -o pip_audit_report.json
+          cat pip_audit_report.json
+
+          if grep -q '"severity": "critical"' pip_audit_report.json; then
+            echo "❌ Critical vulnerability found!"
+            exit 1
+          fi
+
+      - name: Run safety check
+        run: |
+          echo "🔒 Running safety check..."
+          safety check --full-report || true
+
+      - name: Upload pip-audit report
+        uses: actions/upload-artifact@v3
+        with:
+          name: pip-audit-report
+          path: pip_audit_report.json
