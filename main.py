@@ -1,7 +1,7 @@
 # main.py
 import requests
 
-def fetch():
+def fetch():# here we will make request
     response = requests.get("https://api.github.com")
     print("GitHub API status:", response.status_code)
 
