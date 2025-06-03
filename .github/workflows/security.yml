@@ -42,7 +42,7 @@ jobs:
           safety check --full-report || true
 
       - name: Upload pip-audit report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pip-audit-report
           path: pip_audit_report.json
